@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Muslim Daily - Bangun Kebiasaan Baik</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Supabase JS SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        bgMain: '#17113D',
+                        bgSecondary: '#21194F',
+                        cardBg: '#28215C',
+                        primary: '#8B6CF6',
+                        secondary: '#A99AFF',
+                        success: '#35C985',
+                        warning: '#F5B85C',
+                        textMain: '#FFFFFF',
+                        mutedText: '#B9B2D9'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #17113D;
+            color: #FFFFFF;
+            font-family: 'Inter', sans-serif;
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #17113D;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #28215C;
+            border-radius: 9999px;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-center p-0 md:p-4">
+
+    <!-- Container Utama aplikasi (Mobile Frame di desktop, Full di mobile) -->
+    <div id="app-container" class="w-full max-w-md bg-bgSecondary min-h-screen md:min-h-[850px] md:rounded-3xl shadow-2xl flex flex-col relative overflow-hidden border border-primary/20">
+
+        <!-- 1. SPLASH SCREEN -->
+        <div id="splash-screen" class="absolute inset-0 bg-bgMain z-50 flex flex-col items-center justify-center transition-opacity duration-700">
+            <div class="relative flex flex-col items-center animate-pulse">
+                <div class="w-24 h-24 rounded-full bg-primary/20 flex items-center justify-center mb-6 border border-primary/40 shadow-lg shadow-primary/30">
+                    <i data-lucide="moon" class="w-12 h-12 text-secondary"></i>
+                </div>
+                <h1 class="text-3xl font-bold tracking-wider text-textMain mb-2">MUSLIM DAILY</h1>
+                <p class="text-mutedText text-sm text-center px-8">Bangun Kebiasaan Baik, Perbaiki Ibadah, Dekatkan Diri kepada Allah.</p>
+            </div>
+            <div class="absolute bottom-12 flex flex-col items-center">
+                <div class="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+            </div>
+        </div>
+
+        <!-- 2. AUTH SCREEN (LOGIN & REGISTRASI) -->
+        <div id="auth-screen" class="flex-1 flex flex-col p-6 justify-between hidden">
+            <!-- Header Banner -->
+            <div class="pt-8 text-center">
+                <div class="w-16 h-16 rounded-2xl bg-primary/20 mx-auto flex items-center justify-center mb-4 border border-primary/30">
+                    <i data-lucide="moon-star" class="w-8 h-8 text-secondary"></i>
+                </div>
+                <h2 id="auth-title" class="text-2xl font-bold text-textMain">Selamat Datang</h2>
+                <p id="auth-subtitle" class="text-mutedText text-sm mt-1">Silakan masuk ke akun Muslim Daily Anda</p>
+            </div>
+
+            <!-- Form Container -->
+            <div class="my-auto py-4">
+                <!-- Pesan Notifikasi Custom -->
+                <div id="auth-alert" class="hidden mb-4 p-3 rounded-xl text-sm flex items-center gap-2"></div>
+
+                <form id="auth-form" class="space-y-4" onsubmit="handleAuthSubmit(event)">
+                    <div id="name-field-container" class="hidden">
+                        <label class="block text-xs font-medium text-mutedText mb-1">Nama Lengkap</label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-mutedText">
+                                <i data-lucide="user" class="w-4 h-4"></i>
+                            </span>
+                            <input type="text" id="full-name" placeholder="Nama Anda" class="w-full pl-10 pr-4 py-3 bg-cardBg border border-primary/20 rounded-xl text-textMain text-sm focus:outline-none focus:border-primary">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-medium text-mutedText mb-1">Email</label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-mutedText">
+                                <i data-lucide="mail" class="w-4 h-4"></i>
+                            </span>
+                            <input type="email" id="auth-email" required placeholder="nama@email.com" class="w-full pl-10 pr-4 py-3 bg-cardBg border border-primary/20 rounded-xl text-textMain text-sm focus:outline-none focus:border-primary">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-medium text-mutedText mb-1">Password</label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-mutedText">
+                                <i data-lucide="lock" class="w-4 h-4"></i>
+                            </span>
+                            <input type="password" id="auth-password" required placeholder="••••••••" class="w-full pl-10 pr-4 py-3 bg-cardBg border border-primary/20 rounded-xl text-textMain text-sm focus:outline-none focus:border-primary">
+                        </div>
+                    </div>
+
+                    <button type="submit" id="auth-submit-btn" class="w-full py-3.5 bg-primary hover:bg-primary/90 text-white font-semibold rounded-xl shadow-lg shadow-primary/30 transition-all flex items-center justify-center gap-2">
+                        <span id="auth-btn-text">Masuk</span>
+                        <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                    </button>
+                </form>
+
+                <!-- Tombol Ganti Mode Login / Register -->
+                <div class="mt-6 text-center">
+                    <p id="auth-toggle-text" class="text-sm text-mutedText">
+                        Belum punya akun? <button onclick="toggleAuthMode()" class="text-secondary font-medium hover:underline">Daftar sekarang</button>
+                    </p>
+                </div>
+            </div>
+
+            <!-- Footer Info -->
+            <div class="text-center pb-4">
+                <p class="text-xs text-mutedText">Muslim Daily v1.0 • Supabase Secure Auth</p>
+            </div>
+        </div>
+
+        <!-- 3. DASHBOARD UTAMA (SETELAH LOGIN BERHASIL) -->
+        <div id="dashboard-screen" class="flex-1 flex flex-col justify-between hidden overflow-y-auto p-5">
+            <div class="space-y-6">
+                <!-- Header User & Greeting -->
+                <div class="flex items-center justify-between pt-2">
+                    <div>
+                        <p class="text-xs text-mutedText" id="current-date-label">Jumat, 13 November 2026</p>
+                        <h2 class="text-xl font-bold text-textMain" id="user-greeting">Assalamu'alaikum, Sahabat</h2>
+                    </div>
+                    <button onclick="handleLogout()" class="p-2.5 bg-cardBg border border-primary/20 rounded-xl text-mutedText hover:text-textMain transition" title="Keluar Akun">
+                        <i data-lucide="log-out" class="w-5 h-5 text-warning"></i>
+                    </button>
+                </div>
+
+                <!-- Database Status Banner -->
+                <div class="p-4 bg-cardBg border border-success/30 rounded-2xl flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-success/20 flex items-center justify-center text-success flex-shrink-0">
+                        <i data-lucide="database" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <h4 class="text-sm font-semibold text-textMain">Supabase Terhubung</h4>
+                        <p class="text-xs text-mutedText">Sesi aktif dan sinkronisasi database aktif.</p>
+                    </div>
+                </div>
+
+                <!-- Preview Kotak Fitur Selanjutnya -->
+                <div class="space-y-3">
+                    <h3 class="text-sm font-semibold text-mutedText tracking-wider uppercase">Menu Utama</h3>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="p-4 bg-cardBg rounded-2xl border border-primary/10 flex flex-col gap-2">
+                            <i data-lucide="check-square" class="w-6 h-6 text-primary"></i>
+                            <span class="font-medium text-sm">Ibadah Harian</span>
+                            <span class="text-xs text-mutedText">Checklist & Streak</span>
+                        </div>
+                        <div class="p-4 bg-cardBg rounded-2xl border border-primary/10 flex flex-col gap-2">
+                            <i data-lucide="bar-chart-3" class="w-6 h-6 text-secondary"></i>
+                            <span class="font-medium text-sm">Rekap & Grafik</span>
+                            <span class="text-xs text-mutedText">Statistik ibadah</span>
+                        </div>
+                        <div class="p-4 bg-cardBg rounded-2xl border border-primary/10 flex flex-col gap-2">
+                            <i data-lucide="book-open" class="w-6 h-6 text-success"></i>
+                            <span class="font-medium text-sm">Al-Qur'an</span>
+                            <span class="text-xs text-mutedText">Tracker Tilawah</span>
+                        </div>
+                        <div class="p-4 bg-cardBg rounded-2xl border border-primary/10 flex flex-col gap-2">
+                            <i data-lucide="heart" class="w-6 h-6 text-warning"></i>
+                            <span class="font-medium text-sm">Doa & Syukur</span>
+                            <span class="text-xs text-mutedText">Kumpulan Doa Harian</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer Dashboard -->
+            <div class="pt-8 text-center pb-4">
+                <p class="text-xs text-mutedText">Tahap 1 Autentikasi & Database Berhasil Dimuat.</p>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Script Logika Aplikasi & Supabase Client -->
+    <script>
+        // Konfigurasi Supabase sesuai instruksi
+        const SUPABASE_URL = 'https://ihmpqnrlgserlpldfmvr.supabase.co';
+        // Publishable key aman untuk frontend
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlobXBxbnJsZ3NlcmxwbGRmbXZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE5MTk4Mzk2NzN9.Nzk0YzhjMTFmYjBhYjM2NzM3MjJiNDM1Yzg5YzNiOGY'; 
+
+        let supabaseClient = null;
+        try {
+            supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        } catch (e) {
+            console.error("Gagal menginisialisasi Supabase client:", e);
+        }
+
+        let isLoginMode = true;
+
+        // Inisialisasi ikon Lucide
+        document.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+            
+            // Tanggal hari ini format Indonesia
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            const todayStr = new Date().toLocaleDateString('id-ID', options);
+            const dateEl = document.getElementById('current-date-label');
+            if(dateEl) dateEl.innerText = todayStr;
+
+            // Jalankan SplashScreen lalu cek Session Supabase
+            setTimeout(() => {
+                const splash = document.getElementById('splash-screen');
+                splash.style.opacity = '0';
+                setTimeout(() => {
+                    splash.classList.add('hidden');
+                    checkUserSession();
+                }, 700);
+            }, 1800);
+        });
+
+        // Cek Sesi Aktif di Supabase
+        async function checkUserSession() {
+            if (!supabaseClient) {
+                showAuthScreen();
+                return;
+            }
+
+            try {
+                const { data: { session }, error } = await supabaseClient.auth.getSession();
+                if (error) throw error;
+
+                if (session && session.user) {
+                    showDashboard(session.user);
+                } else {
+                    showAuthScreen();
+                }
+            } catch (err) {
+                console.error("Error cek sesi:", err);
+                showAuthScreen();
+            }
+        }
+
+        function showAuthScreen() {
+            document.getElementById('auth-screen').classList.remove('hidden');
+            document.getElementById('dashboard-screen').classList.add('hidden');
+            lucide.createIcons();
+        }
+
+        function showDashboard(user) {
+            document.getElementById('auth-screen').classList.add('hidden');
+            document.getElementById('dashboard-screen').classList.remove('hidden');
+            
+            const email = user.email || 'Sahabat Muslim';
+            const name = user.user_metadata?.full_name || email.split('@')[0];
+            document.getElementById('user-greeting').innerText = `Assalamu'alaikum, ${name}`;
+            lucide.createIcons();
+        }
+
+        // Toggle antara Login dan Register
+        function toggleAuthMode() {
+            isLoginMode = !isLoginMode;
+            const title = document.getElementById('auth-title');
+            const subtitle = document.getElementById('auth-subtitle');
+            const btnText = document.getElementById('auth-btn-text');
+            const toggleText = document.getElementById('auth-toggle-text');
+            const nameContainer = document.getElementById('name-field-container');
+
+            hideAlert();
+
+            if (isLoginMode) {
+                title.innerText = "Selamat Datang";
+                subtitle.innerText = "Silakan masuk ke akun Muslim Daily Anda";
+                btnText.innerText = "Masuk";
+                toggleText.innerHTML = `Belum punya akun? <button onclick="toggleAuthMode()" class="text-secondary font-medium hover:underline">Daftar sekarang</button>`;
+                nameContainer.classList.add('hidden');
+                document.getElementById('full-name').removeAttribute('required');
+            } else {
+                title.innerText = "Buat Akun Baru";
+                subtitle.innerText = "Mulai perjalanan ibadah harian Anda bersama Muslim Daily";
+                btnText.innerText = "Daftar";
+                toggleText.innerHTML = `Sudah punya akun? <button onclick="toggleAuthMode()" class="text-secondary font-medium hover:underline">Masuk disini</button>`;
+                nameContainer.classList.remove('hidden');
+                document.getElementById('full-name').setAttribute('required', 'true');
+            }
+            lucide.createIcons();
+        }
+
+        // Handler Submit Form Auth (Login / Register)
+        async function handleAuthSubmit(event) {
+            event.preventDefault();
+            if (!supabaseClient) {
+                showAlert("Supabase client belum terkonfigurasi dengan benar.", "error");
+                return;
+            }
+
+            const email = document.getElementById('auth-email').value.trim();
+            const password = document.getElementById('auth-password').value;
+            const fullName = document.getElementById('full-name').value.trim();
+            const submitBtn = document.getElementById('auth-submit-btn');
+
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = `<div class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mx-auto"></div>`;
+
+            hideAlert();
+
+            try {
+                if (isLoginMode) {
+                    // Proses Login
+                    const { data, error } = await supabaseClient.auth.signInWithPassword({
+                        email: email,
+                        password: password
+                    });
+
+                    if (error) throw error;
+                    showAlert("Login berhasil! Memuat dashboard...", "success");
+                    setTimeout(() => showDashboard(data.user), 1000);
+
+                } else {
+                    // Proses Registrasi
+                    const { data, error } = await supabaseClient.auth.signUp({
+                        email: email,
+                        password: password,
+                        options: {
+                            data: {
+                                full_name: fullName
+                            }
+                        }
+                    });
+
+                    if (error) throw error;
+
+                    if (data?.session) {
+                        showAlert("Registrasi berhasil! Selamat datang.", "success");
+                        setTimeout(() => showDashboard(data.user), 1000);
+                    } else {
+                        showAlert("Registrasi berhasil! Silakan cek email Anda untuk verifikasi atau langsung login.", "success");
+                        isLoginMode = true;
+                        toggleAuthMode();
+                    }
+                }
+            } catch (err) {
+                console.error("Auth error:", err);
+                showAlert(err.message || "Terjadi kesalahan autentikasi.", "error");
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = `<span id="auth-btn-text">${isLoginMode ? 'Masuk' : 'Daftar'}</span><i data-lucide="arrow-right" class="w-4 h-4"></i>`;
+                lucide.createIcons();
+            }
+        }
+
+        // Handler Logout
+        async function handleLogout() {
+            if (!supabaseClient) return;
+            try {
+                const { error } = await supabaseClient.auth.signOut();
+                if (error) throw error;
+                showAuthScreen();
+            } catch (err) {
+                console.error("Logout error:", err);
+            }
+        }
+
+        // Utilitas Alert Pesan Custom
+        function showAlert(message, type = 'success') {
+            const alertEl = document.getElementById('auth-alert');
+            alertEl.classList.remove('hidden', 'bg-success/20', 'text-success', 'bg-warning/20', 'border-success/30', 'border-warning/30');
+            
+            if (type === 'success') {
+                alertEl.classList.add('bg-success/20', 'text-success', 'border', 'border-success/30');
+                alertEl.innerHTML = `<i data-lucide="check-circle-2" class="w-5 h-5 flex-shrink-0"></i><span>${message}</span>`;
+            } else {
+                alertEl.classList.add('bg-warning/20', 'text-warning', 'border', 'border-warning/30');
+                alertEl.innerHTML = `<i data-lucide="alert-circle" class="w-5 h-5 flex-shrink-0"></i><span>${message}</span>`;
+            }
+            lucide.createIcons();
+        }
+
+        function hideAlert() {
+            const alertEl = document.getElementById('auth-alert');
+            alertEl.classList.add('hidden');
+        }
+    </script>
+
+</body>
+</html>
